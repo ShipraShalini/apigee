@@ -31,3 +31,10 @@ def user_login(request):
 
 def user_logout(request):
     logout(request)
+
+
+def user_delete(request):
+    pass
+
+def user_modify(request):
+    pass
