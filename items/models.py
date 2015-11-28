@@ -5,6 +5,7 @@ class Items(models.Model):
     name = models.CharField(max_length=200, primary_key=True)
     date_added = models.DateTimeField('date added')
     image = models.ImageField()
+    status = models.CharField(max_length=20, default= 'Available')
     #min_bid = models.IntegerField()
 
 
