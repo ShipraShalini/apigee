@@ -15,7 +15,7 @@ def notify(item, username, bid_amount):
     subscribers = []
 
     for bidder in bid_list:
-        User = User.objects.filter(username=bid_list.bidder)
+        User = User.objects.filter(username=bidder.bidder)
         subscribers.append(User.email)
 
     subject ="New bid on {}".format(item)

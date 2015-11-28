@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from datetime import datetime
 from items.models import Items, bids
+from notification import notify
 
 
 
@@ -55,31 +56,35 @@ def sell_items(request):
 def add_bid(request):
     if request.method == "POST":
         item_name = request.POST['item']
-        bidder =  request.POST['name']
-        bid_amount= request.POST['amount']
+        if Items.objects.get(name = item_name).status == 'sold':
+            return HttpResponse("Cannot Bid: {}. Item already sold".format(item_name), status= 200)
 
-        try:
-            bid = bids.objects.get(name = item_name, bidder = bidder ),
-
-        except bids.DoesNotExist:
-            bid = bids.objects.create(bidder = bidder,  #find out way of retrieving user form login info
-                                    item = item_name,
-                                    bid_amount= bid_amount)
         else:
-            bid.bid_amount = bid_amount
-            bid.save()
+            bidder = request.POST['username']
+            bid_amount= request.POST['amount']
 
-        #function for notifying bidders
-        #
-        #
-        return HttpResponse("Added Item: {} {}".format(bid.item, bid.bid_amount), status= 200)
+            try:
+                bid = bids.objects.get(name = item_name, bidder = bidder ),
+
+            except bids.DoesNotExist:
+                bid = bids.objects.create(bidder = bidder,  #find out way of retrieving user form login info
+                                        item = item_name,
+                                        bid_amount= bid_amount)
+            else:
+                bid.bid_amount = bid_amount
+                bid.save()
+
+            #function for notifying bidders
+            notify(item= item_name, username= bidder, bid_amount= bid_amount)
+
+            return HttpResponse("Added Bid: {} {}".format(bid.item, bid.bid_amount), status= 200)
 
 
 def del_bids(request):
     item_name=request.REQUEST['name']
     bidder = request.REQUEST['name']
     bids.objects.get(Q(name__exact = item_name),
-                     Q(bidder__exact = bidder  )).delete()
+                     Q(bidder__exact = bidder)).delete()
     return HttpResponse("OK 200 Bid deleted {} for ".format(item_name), status= 200)
 
 #is it needed
