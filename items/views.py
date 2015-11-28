@@ -18,7 +18,7 @@ def del_items(request):
 
 
 def view_items(request):
-    item_name=request.POST['name']
+    item_name=request.REQUEST['name']
     item = Items.objects.get(name = item_name)
     top5=[]
 
