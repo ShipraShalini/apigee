@@ -5,10 +5,17 @@ from django.contrib.auth import authenticate, login, logout
 
 def add_user(request):
     if request.method == "POST":
-        name = request.POST['name']
+        username = request.POST['username']
         email = request.POST['email']
-        User.objects.create_user( name, email, 'johnpassword')
-        return HttpResponse("Added User: {} {}".format(name,email), status= 200)
+        first_name = request.POST['first_name']
+        last_name = request.POST['last_name']
+        User.objects.create_user( username= username,
+                                  first_name= first_name,
+                                  last_name = last_name,
+                                  email=email,
+                                  password='johnpassword'
+                                  )
+        return HttpResponse("Added User: {} {}".format(username,email), status= 200)
     else:
         return HttpResponse("Add User")
 

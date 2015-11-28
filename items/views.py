@@ -3,6 +3,7 @@ from datetime import datetime
 from items.models import Items, bids
 
 
+
 def add_items(request):
     if request.method == "POST":
         item= Items.objects.create(name = request.POST['name'],
@@ -53,9 +54,20 @@ def sell_items(request):
 
 def add_bid(request):
     if request.method == "POST":
-        bid = bids.objects.create(bidder = request.POST['name'],  #find out way of retrieving user form login info
-                                    item = request.POST['item'],
-                                    bid_amount= request.POST['amount'])
+        item_name = request.POST['item']
+        bidder =  request.POST['name']
+        bid_amount= request.POST['amount']
+
+        try:
+            bid = bids.objects.get(name = item_name, bidder = bidder ),
+
+        except bids.DoesNotExist:
+            bid = bids.objects.create(bidder = bidder,  #find out way of retrieving user form login info
+                                    item = item_name,
+                                    bid_amount= bid_amount)
+        else:
+            bid.bid_amount = bid_amount
+            bid.save()
 
         #function for notifying bidders
         #
@@ -70,7 +82,7 @@ def del_bids(request):
                      Q(bidder__exact = bidder  )).delete()
     return HttpResponse("OK 200 Bid deleted {} for ".format(item_name), status= 200)
 
-#is it needed?
+#is it needed
 def view_bids(request):
     bidder=request.REQUEST['name']
     bid_list = bids.objects.filter(name = bidder)
@@ -78,3 +90,4 @@ def view_bids(request):
     #create function to view to 5
 
     return HttpResponse("Bids Listed: {}".format(bid_list), status= 200)
+
