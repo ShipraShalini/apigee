@@ -8,7 +8,7 @@ def add_user(request):
         name = request.POST['name']
         email = request.POST['email']
         User.objects.create_user( name, email, 'johnpassword')
-        return HttpResponse("Added User: {} {}".format(name,email))
+        return HttpResponse("Added User: {} {}".format(name,email), status= 200)
     else:
         return HttpResponse("Add User")
 
@@ -20,7 +20,7 @@ def user_login(request):
     if user is not None:
         if user.is_active:
             login(request, user)
-            return HttpResponse("User logged in")
+            return HttpResponse("User logged in", status= 200)
         else:
             # Return a 'disabled account' error message
             return HttpResponse("User not logged in")
