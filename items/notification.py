@@ -1,7 +1,7 @@
 __author__ = 'hypatia'
 
 from django.core.mail import send_mass_mail
-from items.models import Items, bids
+from items.models import bids
 from django.contrib.auth.models import User
 
 

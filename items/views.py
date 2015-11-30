@@ -1,16 +1,25 @@
 from django.http import HttpResponse
-from datetime import datetime
+from datetime import datetime, time
 from items.models import Items, bids
 from notification import notify
+from django.contrib.auth.models import User
+import sched
 
 
 
 def add_items(request):
-    if request.method == "POST":
-        item= Items.objects.create(name = request.POST['name'],
-                                    date_added = datetime.now(),
-                                    image= request.POST['image_url'])
-        return HttpResponse("Added Item: {}".format(item.name), status= 200)
+    seller = User().get_username()
+    if seller:
+        if request.method == "POST":
+            item= Items.objects.create(name = request.POST['name'],
+                                       seller = seller,
+                                       date_added = datetime.now(),
+                                       image= request.POST['image_url'],
+                                       min_bid = request.POST['min_bid'] )
+            return HttpResponse("Added Item: {}".format(item.name), status= 200)
+
+    else:
+        return HttpResponse("Please log in") #redirect to login
 
 
 def del_items(request):
@@ -54,45 +63,55 @@ def sell_items(request):
 
 
 def add_bid(request):
-    if request.method == "POST":
-        item_name = request.POST['item']
-        if Items.objects.get(name = item_name).status == 'sold':
-            return HttpResponse("Cannot Bid: {}. Item already sold".format(item_name), status= 200)
+    bidder = User().get_username()
+    if bidder:
+        if request.method == "POST":
+            item_name = request.POST['item']
+            if Items.objects.get(name = item_name).status == 'sold':
+                return HttpResponse("Cannot Bid: {}. Item already sold".format(item_name), status= 200)
 
-        else:
-            bidder = request.POST['username']
-            bid_amount= request.POST['amount']
-
-            try:
-                bid = bids.objects.get(name = item_name, bidder = bidder ),
-
-            except bids.DoesNotExist:
-                bid = bids.objects.create(bidder = bidder,  #find out way of retrieving user form login info
-                                        item = item_name,
-                                        bid_amount= bid_amount)
             else:
-                bid.bid_amount = bid_amount
-                bid.save()
+                bid_amount= request.POST['amount']
 
-            #function for notifying bidders
-            notify(item= item_name, username= bidder, bid_amount= bid_amount)
+                try:
+                    bid = bids.objects.get(name = item_name, bidder = bidder ),
 
-            return HttpResponse("Added Bid: {} {}".format(bid.item, bid.bid_amount), status= 200)
+                except bids.DoesNotExist:
+                    bid = bids.objects.create(bidder = bidder,
+                                            item = item_name,
+                                            bid_amount= bid_amount)
+                else:
+                    bid.bid_amount = bid_amount
+                    bid.save()
+
+                #function for notifying bidders
+                notify(item= item_name, username= bidder, bid_amount= bid_amount)
+
+                return HttpResponse("Added Bid: {} {}".format(bid.item, bid.bid_amount), status= 200)
+    else:
+        return HttpResponse("Please log in")
 
 
 def del_bids(request):
-    item_name=request.REQUEST['name']
-    bidder = request.REQUEST['name']
-    bids.objects.get(Q(name__exact = item_name),
-                     Q(bidder__exact = bidder)).delete()
-    return HttpResponse("OK 200 Bid deleted {} for ".format(item_name), status= 200)
+    bidder = User().get_username()
+    if bidder:
+        item_name=request.REQUEST['name']
+        try:
+            bids.objects.get(name__exact = item_name,bidder__exact = bidder).delete()
+        except:
+            return HttpResponse("Error: could not delete item {}. Retry".format(item_name))
+        else:
+            return HttpResponse("OK 200 Bid deleted {} for ".format(item_name), status= 200)
+    else:
+        return HttpResponse("Please log in")
+
 
 #is it needed
 def view_bids(request):
-    bidder=request.REQUEST['name']
-    bid_list = bids.objects.filter(name = bidder)
-    #create a time left function
-    #create function to view to 5
-
-    return HttpResponse("Bids Listed: {}".format(bid_list), status= 200)
+    bidder = User().get_username()
+    if bidder:
+        bid_list = bids.objects.filter(name = bidder)
+        return HttpResponse("Bids Listed: {}".format(bid_list), status= 200)
+    else:
+        return HttpResponse("Please log in")
 

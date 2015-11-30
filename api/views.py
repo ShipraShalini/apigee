@@ -21,9 +21,9 @@ def add_user(request):
 
 
 def user_login(request):
-    name = request.POST['name']
+    username = request.POST['username']
     password = request.POST['password']
-    user = authenticate(username=name, password=password)
+    user = authenticate(username=username, password=password)
     if user is not None:
         if user.is_active:
             login(request, user)
