@@ -5,6 +5,11 @@ setup_test_environment()
 c = Client()
 response = c.post('/user_login/', {'username': "abc", 'password': 'johnpassword'})
 response.content
+response = c.post('/view_bids/', {'item': "xyz"})
+
+
+response = c.post('/add_bid/', {'item': "xyz", 'amount':85})
+
 
 #response = c.post('/view_item/', {'name': 'bbb'})
 

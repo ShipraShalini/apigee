@@ -5,7 +5,7 @@ class Items(models.Model):
     name = models.CharField(max_length=200, primary_key=True)
     seller = models.CharField(max_length=200, default='')
     date_added = models.DateTimeField('date added')
-    image = models.ImageField(default='')
+    image = models.ImageField(upload_to='/home/hypatia/bidengine/image', default='/home/hypatia/Downloads/thumbnail-default.jpg')
     status = models.CharField(max_length=20, default= 'Available')
     min_bid = models.IntegerField(default=0)
 

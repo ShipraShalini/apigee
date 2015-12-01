@@ -9,10 +9,12 @@ def notify(item, username, bid_amount):
     subscribers = []
 
     for bidder in bid_list:
-        user = User.objects.filter(username=bidder.bidder)
-        subscribers.append(user.email)
+        users = User.objects.filter(username=bidder.bidder)
+        for user in users:
+            subscribers.append(user.email)
 
     subject ="New bid on {}".format(item)
     content= "{} bid amount {} on the item {}".format(username, bid_amount, item)
     message=(subject, content, 'from@example.com', subscribers) #create constant list
-    send_mass_mail(message)
+    print message
+    #send_mass_mail(message)

@@ -21,6 +21,7 @@ urlpatterns = patterns('',
     url(r'^sell_item/', items.sell_items),
     url(r'^add_bid/', items.add_bid),
     url(r'^del_bid/', items.del_bids),
+    url(r'^view_bids/', items.view_bids),
 )
 
 
