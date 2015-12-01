@@ -2,8 +2,6 @@ from django.http import HttpResponse
 from datetime import datetime, time
 from items.models import Items, bids
 from notification import notify
-from django.contrib.auth.models import User
-import sched
 
 
 
