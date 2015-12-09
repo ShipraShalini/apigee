@@ -10,6 +10,7 @@ response = c.post('/view_bids/', {'item': "xyz"})
 
 response = c.post('/add_bid/', {'item': "xyz", 'amount':85})
 
+#response = c.post('/add_item/', {'name': "a2tt", 'min_bid':85})
 
 #response = c.post('/view_item/', {'name': 'bbb'})
 

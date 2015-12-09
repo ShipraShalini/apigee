@@ -3,6 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/bidengine.iml" filepath="$PROJECT_DIR$/.idea/bidengine.iml" />
+      <module fileurl="file://$USER_HOME$/PycharmProjects/es-django-example/.idea/es-django-example.iml" filepath="$USER_HOME$/PycharmProjects/es-django-example/.idea/es-django-example.iml" />
+      <module fileurl="file://$USER_HOME$/thinqbot/viper/.idea/viper.iml" filepath="$USER_HOME$/thinqbot/viper/.idea/viper.iml" />
+      <module fileurl="file://$USER_HOME$/thinqbot/warbird/.idea/warbird.iml" filepath="$USER_HOME$/thinqbot/warbird/.idea/warbird.iml" />
     </modules>
   </component>
 </project>

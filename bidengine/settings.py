@@ -23,14 +23,29 @@ SECRET_KEY = '+)vj*w45*03av489n_=*nxpx)6!!%(237xl9kb&b+14!ve)xns'
 DEBUG = True
 
 TEMPLATE_DEBUG = True
+# TEMPLATES = [
+#     {
+#         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+#         'APP_DIRS': True,
+#         'DIRS': ["/home/hypatia/bidengine/api/templates/api",]
+#     },
+# ]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
         'APP_DIRS': True,
-        'DIRS': ["/home/hypatia/bidengine/api/templates/api",]
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
     },
 ]
-
 
 ALLOWED_HOSTS = []
 
@@ -95,3 +110,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+
+ES_INDEX = 'items'
+
+ES_INDEX_SETTINGS = {
+    'number_of_shards': 1,
+    'number_of_replicas': 0,
+}
+
+ES_CONNECTIONS = {
+    'default': {},
+}
