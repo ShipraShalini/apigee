@@ -38,3 +38,10 @@ def pub_ip():
     #ip addr show eth0 | grep inet | awk '{ print $2; }' | sed 's/\/.*$//'
     #uwsgi --http :8080 --home /home/user/Env/firstsite --chdir /home/user/firstsite -w firstsite.wsgi
     pass
+
+def is_login(request):
+    username = request.user
+    if username:
+        return username
+    else:
+        pass # find way to break out of parent function

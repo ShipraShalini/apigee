@@ -1,28 +1,33 @@
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 
+@csrf_exempt
 def add_user(request):
     if request.method == "POST":
-        username = request.POST['username']
-        email = request.POST['email']
-        first_name = request.POST['first_name']
-        last_name = request.POST['last_name']
+        data = json.loads(request.body)
+        username = data['username']
+        email = data['email']
+        first_name = data['first_name']
+        last_name = data['last_name']
         User.objects.create_user( username= username,
                                   first_name= first_name,
                                   last_name = last_name,
                                   email=email,
                                   password='johnpassword'
                                   )
-        return HttpResponse("Added User: {} {}".format(username,email), status= 200)
+        return HttpResponse("Added User: {0} {1}".format(username,email), status= 200)
     else:
         return HttpResponse("Add User")
 
-
+@csrf_exempt
 def user_login(request):
-    username = request.POST['username']
-    password = request.POST['password']
+    data = json.loads(request.body)
+    username = data['username']
+    password = data['password']
     user = authenticate(username=username, password=password)
     if user is not None:
         if user.is_active:
@@ -41,7 +46,20 @@ def user_logout(request):
 
 
 def user_delete(request):
-    pass
-
+    username = request.user
+    if username:
+        User.objects.get(username=username).delete()
+        return HttpResponse("User {0} deleted".format(username))
+    else:
+        return HttpResponse("Please login")
+@csrf_exempt
 def user_modify(request):
-    pass
+    username = request.user
+    if username:
+        newname= json.loads(request.body)['newname']
+        u = User.objects.get(username=username)
+        u.username = newname
+        u.save()
+        return HttpResponse("username modified")
+    else:
+        return HttpResponse("Please log in")

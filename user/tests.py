@@ -3,20 +3,19 @@ from django.test import Client
 from django.test.utils import setup_test_environment
 setup_test_environment()
 c = Client()
-response = c.post('/user_login/', {'username': "abc", 'password': 'johnpassword'})
-response.content
-response = c.post('/view_bids/', {'item': "xyz"})
-
-
-response = c.post('/add_bid/', {'item': "xyz", 'amount':85})
+# response = c.post('/user_login/', {'username': "abc", 'password': 'johnpassword'})
+# response.content
+# response = c.post('/view_bids/', {'item': "xyz"})
+#
+#
+# response = c.post('/add_bid/', {'item': "xyz", 'amount':85})
 
 #response = c.post('/add_item/', {'name': "a2tt", 'min_bid':85})
 
 #response = c.post('/view_item/', {'name': 'bbb'})
 
 #Add User
-#response = c.post('/user_add/', {'username': "abc", 'first_name': "Aaaa", 'last_name':'BBbbb', 'email': 'abc@example.com','password': 'abc123'})
-
+response = c.post('/user_add/', {'username': "qffrfrf", 'first_name': "Aaaa", 'last_name':'BBbbb', 'email': 'abc@example.com'})
 #login
 #response = c.post('/user_login/', {'username': "abc", 'password': 'abc123'})
 #response.content

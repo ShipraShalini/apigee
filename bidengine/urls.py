@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from api import views as api
+from user import views as user
 from items import views as items
 
 
@@ -12,10 +12,12 @@ urlpatterns = patterns('',
 
     url('^', include('django.contrib.auth.urls')),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^user_add/', api.add_user),
+    url(r'^user_add/', user.add_user),
+    url(r'^user_delete/', user.user_delete),
+    url(r'^user_modify/', user.user_modify),
     url(r'^welcome/', items.welcome),
-    url(r'^user_login/', api.user_login),
-    url(r'^user_logout/', api.user_logout),
+    url(r'^user_login/', user.user_login),
+    url(r'^user_logout/', user.user_logout),
     url(r'^add_item/', items.add_items),
     url(r'^del_item/', items.del_items),
     url(r'^view_item/', items.view_items),
