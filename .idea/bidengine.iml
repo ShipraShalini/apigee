@@ -4,5 +4,8 @@
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="viper" />
+    <orderEntry type="module" module-name="warbird" />
+    <orderEntry type="module" module-name="es-django-example" />
   </component>
 </module>
