@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from items.models import Items
 from apscheduler.schedulers.background import BackgroundScheduler
 from django.http import HttpResponse
+import json
 
 class scheduler(object):
 
@@ -65,3 +66,12 @@ def list_to_dict(lst):
         dct[k+1] =  v
 
     return dct
+
+
+def read_request(request):
+    seller = request.user
+    if request.method == "POST":
+    #find way to pass null to image_url
+    data = json.loads(request.body)
+    item_name = data['item']
+    seller = seller
