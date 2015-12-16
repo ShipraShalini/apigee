@@ -23,8 +23,28 @@ response = c.post('/user_add/', {'username': "qffrfrf", 'first_name': "Aaaa", 'l
 #response = client.get('/')
 # we should expect a 404 from that address
 #responsestatus_code
+'''
+{"username": "qffrfrf", "first_name": "Aaaa", "last_name":"BBbbb", "email": "abc@example.com"}
+
+Add bid
+{
+    "item": "Ferrari",
+    "amount" : 733545
+}
+
+Add item
+{
+    "item": "shoe",
+    "min_bid" : 1300
+}
 
 
+
+user_login
+{
+    "username": "brad",
+    "password": "johnpassword"
+}
 
 #
 # response =c.post('/users/', {'name': 'fred', 'email': 'secret@abc.in'})
@@ -32,4 +52,5 @@ response = c.post('/user_add/', {'username': "qffrfrf", 'first_name': "Aaaa", 'l
 # response = c.post('/view_item/', {'name': 'bbb'})
 # response = c.post('/view_item/', {'name': 'bbb'})
 #
-# response
+#
+'''''

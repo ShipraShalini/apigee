@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.db.models import Max
 from datetime import datetime, time, timedelta
+from time import strftime
 from items.models import Items, bids
 from view_helper import notify
 import json
@@ -25,19 +26,19 @@ def add_items(request):
             data = json.loads(request.body)
             item_name = data['item']
             seller = seller
+
             item= Items.objects.create(item_name = item_name,
                                        seller = seller,
                                        date_added = datetime.now(),
                                         min_bid = data['min_bid'] )
 
-            # from apscheduler.scheduler import Scheduler
-            #
-            # sched = Scheduler()
-            # sched.start()
-            # exec_time= datetime.now() + timedelta(seconds=5)
-            # job1 = sched.add_date_job(sell_items, exec_time, [item_name])
-            #
-            #
+            from apscheduler.schedulers.background import BackgroundScheduler
+
+            sched = BackgroundScheduler()
+            sched.start()
+            exec_time= datetime.now() + timedelta(minutes= 5)
+            sched.add_job(sell_items, 'date', run_date=exec_time,args= [item_name])
+
             return HttpResponse("Added Item: {0}".format(item.item_name), status= 200)
 
     else:
@@ -47,57 +48,68 @@ def add_items(request):
 #Is payement logic required?
 def sell_items(item_name):
     item = Items.objects.get(item_name = item_name)
-    selling_price = bids.objects.filter(item = item).aggregate(Max('bid_amount'))
+    selling_price = bids.objects.filter(item__item_name__exact = item_name).aggregate(Max('bid_amount'))
+    buyer = bids.objects.get(item__item_name__exact = item_name, bid_amount = selling_price)
     item.status = "Sold"
     item.save()
-    return HttpResponse("Item Sold: {0} at {1}".format(item.name, selling_price), status= 200)
+    return HttpResponse("Item Sold: {0} at {1} to {2}".format(item.name, selling_price, buyer), status= 200)
 
 
 def del_items(request):
-    item_name = json.loads(request.body)['item']
-    Items.objects.get(item_name = item_name).delete()
-    return HttpResponse("Item deleted {0}".format(item_name), status= 200)
+    seller = request.user
+    if seller:
+        item_name = json.loads(request.body)['item']
+        Items.objects.get(item_name = item_name).delete()
+        return HttpResponse("Item deleted {0}".format(item_name), status= 200)
+    else:
+        return HttpResponse("Please log in")
+
 
 
 def view_items(request):
-    item_name=request.REQUEST['name']
+    data = json.loads(request.body)
+    item_name = data['item']
     item = Items.objects.get(item_name = item_name)
     if item.status == "Sold":
         return HttpResponse("Item Listed: {0} \\n DateCreated: {1} \\n Status: {2}".format(item.name,
-                                                                                        item.date_added,
-                                                                                        item.status),
-                            status= 200)
+                                                                                    item.date_added.strftime("%A, %B %d %Y, %H:%M:%S"),
+                                                                                    item.status),
+                        status= 200)
 
     else:
         #find top 5 bids
-        top5=[]
-        top5_result = bids.objects.filter(item_name = item_name).order_by('-bid_amount')[:5]
+        top5={}
+        i=1
+        top5_result = bids.objects.filter(item__item_name__exact = item_name).order_by('-bid_amount')[:5]
         for bid in top5_result:
-            top5.append({'Bidder':bid.bidder, 'Item':bid.item.name, 'Bid Amount': bid.bid_amount})
+            top5[i]=({'Bidder':bid.bidder, 'Item':bid.item.item_name, 'Bid Amount': int(bid.bid_amount)}) #int to remove L character from output
+            i=i+1
 
-        return HttpResponse("OK 200 Item Listed: {0} \\n DateCreated: {1} \\n The top 5 bids: \\n {2}".format(item.name,
-                                                                                                           item.date_added,
+        return HttpResponse("OK 200 Item Listed: {0} \nDateCreated: {1} \nThe top 5 bids:\n{2}".format(item.item_name,
+                                                                                                           item.date_added.strftime("%A, %B %d %Y, %H:%M:%S"),
                                                                                                            top5),
                             status= 200)
 
 
-
-
-
-
-
+'''
+{
+    "item": "abc",
+    "amount" : 34344
+}
+'''
 def add_bid(request):
     #input item, amount
     bidder = request.user
     if bidder:
         if request.method == "POST":
-            item_name = request.POST['item']
+            data = json.loads(request.body)
+            item_name = data['item']
             item = Items.objects.get(item_name = item_name)
             if item.status == 'Sold':
                 return HttpResponse("Cannot Bid: {0}. Item already sold".format(item_name), status= 200)
 
             else:
-                bid_amount= request.POST['amount']
+                bid_amount= data['amount']
 
                 try:
                     bid = bids.objects.get(item = item, bidder = bidder )
@@ -114,33 +126,41 @@ def add_bid(request):
                 #function for notifying bidders
                 notify(item= item_name, username= bidder, bid_amount= bid_amount)
 
-                return HttpResponse("Added Bid: {0} {1}".format(bid.item, bid.bid_amount), status= 200)
+                return HttpResponse("Added Bid: {0} {1}".format(bid.item.item_name, bid.bid_amount), status= 200)
     else:
         return HttpResponse("Please log in")
 
-
+'''
+{
+    "item" : "item_name"
+}
+'''
 def del_bids(request):
     bidder = request.user
     if bidder:
-        item_name=request.REQUEST['item']
+        item_name=json.loads(request.body)['item']
         try:
-            bids.objects.get(item___exact = item_name,bidder__exact = bidder).delete()
+            bids.objects.get(item__item_name__exact = item_name, bidder__exact = bidder).delete()
         except:
             return HttpResponse("Error: could not delete item {0}. Retry".format(item_name))
         else:
-            return HttpResponse("OK 200 Bid deleted {0} for ".format(item_name), status= 200)
+            return HttpResponse("Bid deleted for {0} ".format(item_name), status= 200)
     else:
         return HttpResponse("Please log in")
 
-
-#is it needed
+'''
+no input, user should be logged in
+'''
+#view bids of an user
 def view_bids(request):
     bidder = request.user
+    bid_dict={}
     if bidder:
         bid_list = bids.objects.filter(bidder = bidder)
         for bid in bid_list:
-            print "print bid:" ,bid.item.name, bid.bidder, bid.bid_amount
-        return HttpResponse("Bids Listed: {0}".format(bid_list), status= 200)
+              bid_dict[bid.item.item_name]= int(bid.bid_amount)
+
+        return HttpResponse("User: {0} \nBids: \n{1}".format(request.user, bid_dict), status= 200)
     else:
         return HttpResponse("Please log in")
 

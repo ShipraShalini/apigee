@@ -22,9 +22,9 @@ def notify(item, username, bid_amount):
 
 def Highestbid(number_of_bids, item_name ):
     top_bids=[]
-    top_result = bids.objects.filter(item = item_name).order_by('-bid_amount')[:number_of_bids]
+    top_result = bids.objects.filter(item__item_name__exact = item_name).order_by('-bid_amount')[:number_of_bids]
     for bid in top_result:
-        top_bids.append({'Bidder':bid.bidder, 'Item':bid.item.name, 'Bid Amount': bid.bid_amount})
+        top_bids.append({'Bidder':bid.bidder, 'Item':bid.item.item_name, 'Bid Amount': bid.bid_amount})
     return top_bids
 
 def is_sold(item):
@@ -45,3 +45,10 @@ def is_login(request):
         return username
     else:
         pass # find way to break out of parent function
+
+def list_to_dict(lst):
+    dct={}
+    for k,v in lst.iteritems:
+        dct[k+1] =  v
+
+    return dct

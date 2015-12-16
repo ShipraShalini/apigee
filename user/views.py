@@ -32,7 +32,7 @@ def user_login(request):
     if user is not None:
         if user.is_active:
             login(request, user)
-            return HttpResponse("User logged in", status= 200)
+            return HttpResponse("User {0} logged in".format(request.user), status= 200)
         else:
             # Return a 'disabled account' error message
             return HttpResponse("User not logged in")
@@ -42,7 +42,9 @@ def user_login(request):
 
 
 def user_logout(request):
+    user= request.user
     logout(request)
+    return HttpResponse("User {0} logged out".format(user))
 
 
 def user_delete(request):
