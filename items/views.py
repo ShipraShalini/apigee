@@ -3,14 +3,16 @@ from django.db.models import Max
 from datetime import datetime, time, timedelta
 from time import strftime
 from items.models import Items, bids
-from view_helper import notify
+from view_helper import notify, scheduler
 import json
+import logging
+
+logging.basicConfig()
 
 def welcome(request):
     return HttpResponse("Welcome to Bidding Engine", status= 200)
 
-
-
+s = scheduler()
 
 '''
 {
@@ -30,15 +32,11 @@ def add_items(request):
             item= Items.objects.create(item_name = item_name,
                                        seller = seller,
                                        date_added = datetime.now(),
-                                        min_bid = data['min_bid'] )
+                                        min_bid = data['amount'] )
 
-            from apscheduler.schedulers.background import BackgroundScheduler
-
-            sched = BackgroundScheduler()
-            sched.start()
-            exec_time= datetime.now() + timedelta(minutes= 5)
-            sched.add_job(sell_items, 'date', run_date=exec_time,args= [item_name])
-
+            exec_time= datetime.now() + timedelta(minutes= 1)
+            s.addjob(function=sell_items, time= exec_time, arguments=[item])
+            print exec_time
             return HttpResponse("Added Item: {0}".format(item.item_name), status= 200)
 
     else:
@@ -46,13 +44,16 @@ def add_items(request):
 
 
 #Is payement logic required?
-def sell_items(item_name):
-    item = Items.objects.get(item_name = item_name)
-    selling_price = bids.objects.filter(item__item_name__exact = item_name).aggregate(Max('bid_amount'))
-    buyer = bids.objects.get(item__item_name__exact = item_name, bid_amount = selling_price)
+def sell_items(item):
+    print "in selling function"
+    selling_price = bids.objects.filter(item=item).aggregate(Max('bid_amount'))['bid_amount__max']
+    print selling_price
+    buyer = bids.objects.get(item=item, bid_amount = selling_price).bidder
     item.status = "Sold"
-    item.save()
-    return HttpResponse("Item Sold: {0} at {1} to {2}".format(item.name, selling_price, buyer), status= 200)
+    item.save(update_fields=['status'])
+
+    print("Item Sold: {0} at {1} to {2}".format(item.item_name, selling_price, buyer))
+    #return HttpResponse("Item Sold: {0} at {1} to {2}".format(item.item_name, selling_price, buyer), status= 200)
 
 
 def del_items(request):

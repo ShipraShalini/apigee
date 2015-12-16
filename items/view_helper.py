@@ -4,6 +4,19 @@ from django.core.mail import send_mass_mail
 from items.models import bids
 from django.contrib.auth.models import User
 from items.models import Items
+from apscheduler.schedulers.background import BackgroundScheduler
+
+class scheduler(object):
+
+    def __init__(self):
+        self.sched = BackgroundScheduler()
+        self.sched.start()
+
+    def addjob(self, function, time, arguments):
+        print "in addjob"
+        self.sched.add_job(function, 'date', run_date=time,args= arguments)
+
+
 
 def notify(item, username, bid_amount):
     bid_list = bids.objects.filter(item = item)
