@@ -5,6 +5,7 @@ from items.models import bids
 from django.contrib.auth.models import User
 from items.models import Items
 from apscheduler.schedulers.background import BackgroundScheduler
+from django.http import HttpResponse
 
 class scheduler(object):
 
@@ -49,15 +50,14 @@ def is_sold(item):
 
 def pub_ip():
     #ip addr show eth0 | grep inet | awk '{ print $2; }' | sed 's/\/.*$//'
-    #uwsgi --http :8080 --home /home/user/Env/firstsite --chdir /home/user/firstsite -w firstsite.wsgi
+    #uwsgi --http :8080 --home /home/users/Env/firstsite --chdir /home/users/firstsite -w firstsite.wsgi
     pass
 
 def is_login(request):
-    username = request.user
-    if username:
-        return username
+    if request.user.is_authenticated():
+        return request.user
     else:
-        pass # find way to break out of parent function
+        return False
 
 def list_to_dict(lst):
     dct={}

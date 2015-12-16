@@ -35,7 +35,7 @@ Add bid
 Add item
 {
     "item": "shoe",
-    "min_bid" : 1300
+    "amount" : 1300
 }
 
 

@@ -4,46 +4,51 @@ from datetime import datetime, time, timedelta
 from time import strftime
 from items.models import Items, bids
 from view_helper import notify, scheduler
-import json
+import json, types
 import logging
+from django.contrib.auth.decorators import login_required
+
 
 logging.basicConfig()
 
 def welcome(request):
     return HttpResponse("Welcome to Bidding Engine", status= 200)
 
+def login_message(request):
+    return HttpResponse("Please log in")
+
 s = scheduler()
 
 '''
 {
     "item": "item_name",
-    "min_bid" : 1222
+    "amount" : 1222
 }
 '''
+
+
+@login_required(login_url='http://localhost:8000/login_message/')
 def add_items(request):
     seller = request.user
-    if seller:
-        if request.method == "POST":
-            #find way to pass null to image_url
-            data = json.loads(request.body)
-            item_name = data['item']
-            seller = seller
+    if request.method == "POST":
+        #find way to pass null to image_url
+        data = json.loads(request.body)
+        item_name = data['item']
+        seller = seller
 
-            item= Items.objects.create(item_name = item_name,
-                                       seller = seller,
-                                       date_added = datetime.now(),
-                                        min_bid = data['amount'] )
+        item= Items.objects.create(item_name = item_name,
+                                   seller = seller,
+                                   date_added = datetime.now(),
+                                    min_bid = data['amount'] )
 
-            exec_time= datetime.now() + timedelta(minutes= 1)
-            s.addjob(function=sell_items, time= exec_time, arguments=[item])
-            print exec_time
-            return HttpResponse("Added Item: {0}".format(item.item_name), status= 200)
-
-    else:
-        return HttpResponse("Please log in") #redirect to login
+        exec_time= datetime.now() + timedelta(minutes= 1)
+        s.addjob(function=sell_items, time= exec_time, arguments=[item])
+        print exec_time
+        return HttpResponse("Added Item: {0}".format(item.item_name), status= 200)
 
 
 #Is payement logic required?
+@login_required(login_url='http://localhost:8000/login_message/')
 def sell_items(item):
     print "in selling function"
     selling_price = bids.objects.filter(item=item).aggregate(Max('bid_amount'))['bid_amount__max']
@@ -51,11 +56,10 @@ def sell_items(item):
     buyer = bids.objects.get(item=item, bid_amount = selling_price).bidder
     item.status = "Sold"
     item.save(update_fields=['status'])
-
     print("Item Sold: {0} at {1} to {2}".format(item.item_name, selling_price, buyer))
     #return HttpResponse("Item Sold: {0} at {1} to {2}".format(item.item_name, selling_price, buyer), status= 200)
 
-
+@login_required(login_url='http://localhost:8000/login_message/')
 def del_items(request):
     seller = request.user
     if seller:
@@ -66,7 +70,7 @@ def del_items(request):
         return HttpResponse("Please log in")
 
 
-
+@login_required(login_url='http://localhost:8000/login_message/')
 def view_items(request):
     data = json.loads(request.body)
     item_name = data['item']
@@ -98,10 +102,11 @@ def view_items(request):
     "amount" : 34344
 }
 '''
+@login_required(login_url='http://localhost:8000/login_message/')
 def add_bid(request):
     #input item, amount
     bidder = request.user
-    if bidder:
+    if bidder.is_authenticated() :
         if request.method == "POST":
             data = json.loads(request.body)
             item_name = data['item']
@@ -136,6 +141,7 @@ def add_bid(request):
     "item" : "item_name"
 }
 '''
+@login_required(login_url='http://localhost:8000/login_message/')
 def del_bids(request):
     bidder = request.user
     if bidder:
@@ -150,9 +156,10 @@ def del_bids(request):
         return HttpResponse("Please log in")
 
 '''
-no input, user should be logged in
+no input, users should be logged in
 '''
-#view bids of an user
+#view bids of an users
+@login_required(login_url='http://localhost:8000/login_message/')
 def view_bids(request):
     bidder = request.user
     bid_dict={}
@@ -164,4 +171,12 @@ def view_bids(request):
         return HttpResponse("User: {0} \nBids: \n{1}".format(request.user, bid_dict), status= 200)
     else:
         return HttpResponse("Please log in")
+
+
+#check this
+# for k,v in globals().items():
+#     if isinstance(v, types.FunctionType):
+#         print k,":", v
+#         globals()[k] = login_required(function=v, login_url='http://localhost:8000/login_message/' )
+
 
