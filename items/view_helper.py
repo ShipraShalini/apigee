@@ -3,44 +3,51 @@ __author__ = 'hypatia'
 from django.core.mail import send_mass_mail
 from items.models import bids
 from django.contrib.auth.models import User
-from items.models import Items
 from apscheduler.schedulers.background import BackgroundScheduler
-from django.http import HttpResponse
-import json
+import json, logging
+
 
 class scheduler(object):
-
     def __init__(self):
+        logging.basicConfig()
         self.sched = BackgroundScheduler()
         self.sched.start()
 
     def addjob(self, function, time, arguments):
         print "in addjob"
-        self.sched.add_job(function, 'date', run_date=time,args= arguments)
+        self.sched.add_job(function, 'date', run_date=time, args= arguments)
+
+
 
 
 
 def notify(item, username, bid_amount):
-    bid_list = bids.objects.filter(item = item)
     subscribers = []
+    bid_list = bids.objects.filter(item = item)
 
     for bidder in bid_list:
-        users = User.objects.filter(username=bidder.bidder)
+        users = User.objects.filter(username__exact=bidder.bidder)
         for user in users:
             subscribers.append(user.email)
 
-    subject ="New bid on {}".format(item)
-    content= "{} bid amount {} on the item {}".format(username, bid_amount, item)
-    message=(subject, content, 'from@example.com', subscribers) #create constant list
+    subject = "New bid on {}".format(item)
+    content = "{} bid amount {} on the item {}".format(username, bid_amount, item)
+    message = (subject, content, 'from@example.com', subscribers) #create constant list
     print message
     #send_mass_mail(message)
 
-def Highestbid(number_of_bids, item_name ):
-    top_bids=[]
-    top_result = bids.objects.filter(item__item_name__exact = item_name).order_by('-bid_amount')[:number_of_bids]
-    for bid in top_result:
-        top_bids.append({'Bidder':bid.bidder, 'Item':bid.item.item_name, 'Bid Amount': bid.bid_amount})
-    return top_bids
+
+
+def Highestbid(N, item):
+    topN={}
+    i=1
+    topN_result = bids.objects.filter(item = item).order_by('-bid_amount')[:N]
+    for bid in topN_result:
+        topN[i]=({'Bidder':bid.bidder, 'Item':bid.item.item_name, 'Bid Amount': int(bid.bid_amount)}) #int to remove L character from output
+        i=i+1
+    return topN
+
+
 
 def is_sold(item):
     if item.status == "Sold":
@@ -54,24 +61,16 @@ def pub_ip():
     #uwsgi --http :8080 --home /home/users/Env/firstsite --chdir /home/users/firstsite -w firstsite.wsgi
     pass
 
-def is_login(request):
-    if request.user.is_authenticated():
-        return request.user
-    else:
-        return False
 
-def list_to_dict(lst):
-    dct={}
-    for k,v in lst.iteritems:
-        dct[k+1] =  v
-
-    return dct
-
-
-def read_request(request):
-    seller = request.user
+def read_request_item(request):
+    user = request.user
     if request.method == "POST":
-    #find way to pass null to image_url
-    data = json.loads(request.body)
-    item_name = data['item']
-    seller = seller
+        data = json.loads(request.body)
+        item_name = data['item']
+        try:
+            amount = data['amount']
+        except KeyError:
+            return user, item_name
+        else:
+            return user, item_name, amount
+
