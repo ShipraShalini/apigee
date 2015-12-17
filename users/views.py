@@ -4,7 +4,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 import json
 
+def welcome(request):
+    return HttpResponse("Welcome to Bidding Engine", status= 200)
 
+def login_message(request):
+    return HttpResponse("Please log in")
 
 def add_user(request):
     if request.method == "POST":
@@ -55,10 +59,11 @@ def user_delete(request):
     return HttpResponse("User {0} deleted".format(username))
 
 
-
+'''
 {
         "newname": "brad"
 }
+'''
 
 @login_required(login_url='http://localhost:8000/login_message/')
 def user_modify(request):
