@@ -1,5 +1,4 @@
 from django.db import models
-from bidengine.settings import DATETIME_INPUT_FORMATS
 
 #map bidders with users
 class Items(models.Model):

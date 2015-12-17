@@ -1,10 +1,11 @@
+from datetime import datetime, timedelta
 from django.http import HttpResponse
-from django.db.models import Max
-from datetime import datetime, time, timedelta
-from items.models import Items, bids
-from view_helper import notify
+
 from elastic import add_doc
 from es_models import Item
+from items.models import Items, bids
+from items.views_fold.view_helper import notify
+
 
 def welcome(request):
     return HttpResponse("Welcome to Bidding Engine", status= 200)

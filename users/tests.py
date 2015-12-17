@@ -41,10 +41,10 @@ Add item
 
 
 user_login
-{
-    "username": "brad",
-    "password": "johnpassword"
-}
+    {
+        "username": "brad",
+        "password": "johnpassword"
+    }
 
 #
 # response =c.post('/users/', {'name': 'fred', 'email': 'secret@abc.in'})

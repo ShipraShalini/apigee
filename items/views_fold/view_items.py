@@ -1,7 +1,7 @@
 from django.http import HttpResponse
-from items.models import Items, bids
-from items.view_helper import Highestbid, is_sold
 
+from items.models import Items
+from items.views_fold.view_helper import Highestbid, is_sold
 
 '''
 {
