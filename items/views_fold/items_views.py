@@ -17,8 +17,6 @@ def add_items(request):
 
 
 #Is payement logic required?
-
-@login_required(login_url='http://localhost:8000/login_message/')
 def sell_items(item):
     selling_price = bids.objects.filter(item=item).aggregate(Max('bid_amount'))['bid_amount__max']
     buyer = bids.objects.get(item=item, bid_amount = selling_price).bidder

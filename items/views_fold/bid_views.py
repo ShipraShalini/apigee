@@ -1,6 +1,5 @@
-from django.http import HttpResponse
 from items.models import Items, bids
-from view_helper import notify, scheduler, Highestbid, read_request_item, is_sold
+from view_helper import notify,read_request_item, is_sold
 from django.contrib.auth.decorators import login_required
 
 
@@ -10,7 +9,7 @@ def add_bid(request):
     bidder, item_name, amount = read_request_item(request)
     item = Items.objects.get(item_name = item_name)
     if is_sold(item):
-        return HttpResponse("Cannot Bid: {0}. Item already sold".format(item_name), status= 200)
+        return ("Cannot Bid: {0}. Item already sold".format(item_name))
     else:
         bid_amount = amount
         try:
@@ -26,7 +25,7 @@ def add_bid(request):
         #function for notifying bidders
         notify(item= item_name, username= bidder, bid_amount= bid_amount)
 
-        return HttpResponse("{0} Bid: {1} {2}".format(bid_action,bid.item.item_name, bid.bid_amount), status= 200)
+        return ("{0} Bid: {1} {2}".format(bid_action,bid.item.item_name, bid.bid_amount))
 
 
 '''
@@ -40,9 +39,9 @@ def del_bids(request):
     try:
         bids.objects.get(item__item_name__exact = item_name, bidder__exact = bidder).delete()
     except bids.DoesNotExist:
-        return HttpResponse("Error: could not delete bid {0}. Bid not present".format(item_name))
+        return ("Error: could not delete bid {0}. Bid not present".format(item_name))
     else:
-        return HttpResponse("Bid deleted for {0} ".format(item_name), status= 200)
+        return ("Bid deleted for {0} ".format(item_name))
 
 
 '''
@@ -57,4 +56,4 @@ def view_bids(request):
     for bid in bid_list:
           bid_dict[bid.item.item_name]= int(bid.bid_amount)
 
-    return HttpResponse("User: {0} \nBids: \n{1}".format(bidder, bid_dict), status= 200)
+    return ("User: {0} \nBids: \n{1}".format(bidder, bid_dict))
