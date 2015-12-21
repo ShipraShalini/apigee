@@ -1,11 +1,15 @@
-from items_views import add_items, view_items, del_items
+from items.ES.items_views import add_items, view_items, del_items
+from django.http import HttpResponse
 
 def item(request):
     if request.method == "GET":
-        view_items(request)
+        print "p", request.GET
+        message = view_items(request)
 
     if request.method == "POST":
-        add_items(request)
+        message= add_items(request)
 
     if request.method == "DELETE":
-        del_items(request)
+        message = del_items(request)
+
+    return HttpResponse(message ,status=200)

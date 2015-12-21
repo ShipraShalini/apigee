@@ -26,6 +26,7 @@ def user_login(request):
 @login_required(login_url='http://localhost:8000/login_message/')
 def user_logout(request):
     if request.method == "GET":
-        user= request.user
+        user= request.user.get_username()
+        print user
         logout(request)
         return HttpResponse("User {0} logged out".format(user))

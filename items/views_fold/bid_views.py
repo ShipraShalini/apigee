@@ -11,19 +11,18 @@ def add_bid(request):
     if is_sold(item):
         return ("Cannot Bid: {0}. Item already sold".format(item_name))
     else:
-        bid_amount = amount
         try:
             bid = bids.objects.get(item = item, bidder = bidder )
         except bids.DoesNotExist:
-            bid = bids.objects.create(bidder = bidder, item = item, bid_amount= bid_amount)
+            bid = bids.objects.create(bidder = bidder, item = item, bid_amount= amount)
             bid_action="Created"
         else:
-            bid.bid_amount = bid_amount
+            bid.bid_amount = amount
             bid.save(update_fields=['bid_amount'])
             bid_action="Modified"
 
         #function for notifying bidders
-        notify(item= item_name, username= bidder, bid_amount= bid_amount)
+        notify(item= item_name, username= bidder, bid_amount= amount)
 
         return ("{0} Bid: {1} {2}".format(bid_action,bid.item.item_name, bid.bid_amount))
 
