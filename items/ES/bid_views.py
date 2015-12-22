@@ -51,5 +51,6 @@ def view_bids(request):
     bid_dict= {}
     bid_list = get_bid(bidder=bidder)
     for bid in bid_list:
+        print type(bid)
         bid_dict[bid.item] = int(bid.bid_amount)
     return "User: {0} \nBids: \n{1}".format(bidder, bid_dict)

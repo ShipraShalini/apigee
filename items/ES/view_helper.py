@@ -70,8 +70,17 @@ def read_request_item(request):
     if request.method == "PUT":
         data = json.loads(request.body)
         item_name = data['item']
-        data = data.pop("item", None)
+        del data['item']
+
+        print "RR", data
         return user, item_name, data
+
+
+def update_item(item, key_value):
+    for k,v in key_value.iteritems():
+        item[k] = v
+        item.save()
+    return item
 
 messages= dict(ITEM_NOT_PRESENT_MESSAGE="This Item is not Present",
                BID_NOT_PRESENT_MESSAGE="The Bid is not Present",
@@ -104,4 +113,5 @@ def is_owner(item, user):
         return item
     else:
         return False
+
 

@@ -52,22 +52,22 @@ def get_item(item_name):
 
 
 
-def get_bid(bidder=None, item_name = None):
+def get_bid(bidder=None, item_name = None, amount=None):
     try:
         s= Bids.search()
-        if item_name and bidder:
-            print "a"
-            bid = s.filter("term", bidder = bidder).filter("term", item = item_name).execute()
-            print bid.hits.total
+        if item_name:
+            if bidder:
+                bid = s.filter("term", item = item_name).filter("term", bidder = bidder).execute()
+            elif amount:
+                bid = s.filter("term", item = item_name).filter("term", bid_amount = amount).execute()
+            else:
+                bid = s.filter("term", item = item_name).execute()
         elif bidder:
             bid = s.filter("term", bidder = bidder).execute()
-        elif item_name:
-            bid = s.filter("term", item = item_name).execute()
         else:
-            print "in Else"
+            print "ERROR: Item_name and Bidder not present"
             bid = False
     except NotFoundError:
-        print "Not Found"
         return False
     else:
         return bid
