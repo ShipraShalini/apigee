@@ -1,12 +1,15 @@
 __author__ = 'hypatia'
 
-from django.core.mail import send_mass_mail
-from django.contrib.auth.models import User
+import json
+import logging
+
 from apscheduler.schedulers.background import BackgroundScheduler
-import json, logging
-from django.http import HttpResponse
+from django.contrib.auth.models import User
+from django.core.mail import send_mass_mail
+
 from elastic import get_bid, get_item
 from es_models import Items, Bids
+
 
 class scheduler(object):
     def __init__(self):
@@ -29,9 +32,10 @@ def notify(item, username, bid_amount):
 
     subject = "New bid on {}".format(item)
     content = "{} bid amount {} on the item {}".format(username, bid_amount, item)
-    message = (subject, content, 'from@example.com', subscribers) #create constant list
+    message = (subject, content, 'root@shipra.ninja', subscribers) #create constant list
     print message
-    #send_mass_mail(message)
+    print "type", type(message)
+    send_mass_mail(message)
 
 
 def Highestbid(N, item):
@@ -81,18 +85,6 @@ def update_item(item, key_value):
         item[k] = v
         item.save()
     return item
-
-messages= dict(ITEM_NOT_PRESENT_MESSAGE="This Item is not Present",
-               BID_NOT_PRESENT_MESSAGE="The Bid is not Present",
-               UNAUTHORISED_ACTION_MESSAGE="You are not authorised to perform this action.",
-               SOLD_MESSAGE="This item is already sold.",
-               BID_DELETED_MESSAGE="The bid is deleted.",
-               ITEM_DELETED_MESSAGE="The Item is deleted.",
-               ITEM_UPDATED_MESSAGE="The Item is updated.",
-               CANNOT_PERFORM_ACTION="Cannot Perform action. Unauthorised or Not Present",
-               NUMBER_OF_TOP_BIDS = 5
-
-               )
 
 
 def is_sold(item):

@@ -1,4 +1,5 @@
-from view_helper import notify,read_request_item, is_sold, messages
+from view_helper import notify,read_request_item, is_sold
+from items.ES.constants import messages
 from django.contrib.auth.decorators import login_required
 from elastic import get_bid , create_bid, modify_bid
 

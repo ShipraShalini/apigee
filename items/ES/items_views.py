@@ -2,7 +2,8 @@
 from datetime import datetime, timedelta
 from django.contrib.auth.decorators import login_required
 from django.db.models import Max
-from view_helper import read_request_item, scheduler, is_sold, Highestbid, values, messages, is_owner, update_item
+from view_helper import read_request_item, scheduler, is_sold, Highestbid, values, is_owner, update_item
+from items.ES.constants import messages
 from elastic import add_item, get_item, get_bid
 from es_models import Items,Bids
 from elasticsearch_dsl.connections import connections
