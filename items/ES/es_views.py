@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from django.http import HttpResponse
 
 from elastic import add_doc
-from es_models import Item
+from es_models import Items
 from items.models import Items, bids
 from items.views_fold.view_helper import notify
 
@@ -55,8 +55,8 @@ def del_items(request):
 
 def view_items(request):
     item_id=request.REQUEST['name']
-    item = Item.get(index='item', id = item_id)
-    if item.status == "Sold":
+    item = Item.get(index='item', id = item_id)['_source']
+    if item['status'] == "Sold":
         return HttpResponse("Item Listed: {} \\n DateCreated: {} \\n Status: {}".format(item.name,
                                                                                         item.date_added,
                                                                                         item.status),

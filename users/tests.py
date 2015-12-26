@@ -8,7 +8,7 @@ c = Client()
 # response = c.post('/view_bids/', {'item': "xyz"})
 #
 #
-# response = c.post('/add_bid/', {'item': "xyz", 'amount':85})
+# response = c.post('/create_bid/', {'item': "xyz", 'amount':85})
 
 #response = c.post('/add_item/', {'name': "a2tt", 'min_bid':85})
 
